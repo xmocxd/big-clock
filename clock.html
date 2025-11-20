@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Big Clock</title> 
+</head>
+<body>
+  
+  <div class="outer-wrapper">
+    
+    <div class="clock">
+      <div class="clock-text">
+        <span id="clock-hours" class="digits">88</span><span class="colon">:</span><span id="clock-minutes" class="digits">88
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        function update() {
+          const wrapper = document.querySelector('.clock');
+          const wrapperW = wrapper.offsetWidth;
+          const wrapperH = wrapper.offsetHeight;
+          
+          const clock = wrapper.children[0];
+          const clockW = clock.offsetWidth;
+          const clockH = clock.offsetHeight;
+          
+          const now = new Date();
+          const hours = now.getHours();
+          const minutes = now.getMinutes();
+          
+          document.getElementById('clock-hours').textContent = String(hours).padStart(2, '0');
+          document.getElementById('clock-minutes').textContent = String(minutes).padStart(2, '0');
+          
+          // adjust based on font
+          const flatAdjustment = [-100, 0]; // x , y
+          const translateYAdjustment = -6;
+          
+          clock.style.transform = `
+            translateY(${(wrapperH - clockH) / translateYAdjustment}px)
+            scale(${(wrapperW / clockW) + flatAdjustment[0]},
+            ${(wrapperH / clockH) + flatAdjustment[1]})`;
+        }
+        
+        setInterval(update, 1000);
+        update();
+
+      });
+    </script>
+    
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #111;
+        overflow: hidden;
+      }
+      
+      .outer-wrapper {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .clock {
+        width: calc(100vw - 80px);
+        height: calc(100vh - 80px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1px;
+        font-family: 'Times New Roman', Times, serif;
+        color: #a1a1a1;
+      }
+
+      .clock > div {
+        white-space: nowrap;
+        overflow: visible;
+        transform-origin: center;
+        margin: 1px;
+      }
+      
+      @keyframes fadeCycle {
+        0% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      
+      .clock .colon {
+        animation: fadeCycle 5s infinite; 
+      }
+      
+      
+    </style>
+  </body>
+  </html>
