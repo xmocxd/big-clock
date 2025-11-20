@@ -8,13 +8,15 @@
     
     <div class="clock">
       <div class="clock-text">
-        <span id="clock-hours" class="digits">88</span><span class="colon">:</span><span id="clock-minutes" class="digits">88
+        <span id="clock-hours" class="digits">88</span><span class="colon">:</span><span id="clock-minutes" class="digits">88</span>
       </div>
     </div>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        function update() {
+        let minAnimationFlag = false;
+        
+        function update(force = false) {
           const wrapper = document.querySelector('.clock');
           const wrapperW = wrapper.offsetWidth;
           const wrapperH = wrapper.offsetHeight;
@@ -26,9 +28,28 @@
           const now = new Date();
           const hours = now.getHours();
           const minutes = now.getMinutes();
+          const seconds = now.getSeconds();
+          const minString = String(minutes).padStart(2, '0');
           
-          document.getElementById('clock-hours').textContent = String(hours).padStart(2, '0');
-          document.getElementById('clock-minutes').textContent = String(minutes).padStart(2, '0');
+          if (force) {
+            document.getElementById('clock-hours').innerHTML = String(hours).padStart(2, '0');
+            document.getElementById('clock-minutes').innerHTML = `${minString}`;
+          } else {
+            
+            if (minutes === 0 && seconds < 5) // minimize the amount of times the element is updated
+            document.getElementById('clock-hours').innerHTML = String(hours).padStart(2, '0');
+            
+            if (!minAnimationFlag && seconds >= 55) {
+              minAnimationFlag = true;
+              document.getElementById('clock-minutes').innerHTML = `${minString.slice(0,1)}<span class="last-char animate">${minString.slice(1)}</span>`;
+            }
+            else if (seconds < 5) { // accounts for some lag with setInterval
+              minAnimationFlag = false;
+              document.getElementById('clock-minutes').innerHTML = `${minString}`;
+            }
+            
+          }
+          
           
           // adjust based on font
           const flatAdjustment = [-100, 0]; // x , y
@@ -41,8 +62,8 @@
         }
         
         setInterval(update, 1000);
-        update();
-
+        update(true);
+        
       });
     </script>
     
@@ -74,7 +95,7 @@
         font-family: 'Times New Roman', Times, serif;
         color: #a1a1a1;
       }
-
+      
       .clock > div {
         white-space: nowrap;
         overflow: visible;
@@ -85,17 +106,39 @@
       @keyframes fadeCycle {
         0% {
           opacity: 0;
+          color: #d27b7b;
         }
         50% {
           opacity: 1;
+          color: #a1a1a1;
         }
         100% {
           opacity: 0;
+          color: #d27b7b;
+        }
+      }
+      
+      @keyframes fadeOut1m {
+        0% {
+          opacity: 1;
+          color: #a1a1a1;
+        }
+        100% {
+          opacity: 0;
+          color: #d27b7b;
         }
       }
       
       .clock .colon {
         animation: fadeCycle 5s infinite; 
+      }
+      
+      .clock .digits .last-char {
+        opacity: 1;
+      }
+      
+      .clock .digits .last-char.animate {
+        animation: fadeOut1m 7s 1 forwards;
       }
       
       
